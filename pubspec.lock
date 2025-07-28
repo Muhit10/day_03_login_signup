@@ -58,7 +58,7 @@ packages:
     source: hosted
     version: "1.0.8"
   easy_social_login:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       path: "."
       ref: main
