@@ -25,6 +25,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
+
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
 
@@ -35,7 +37,6 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen>
     with TickerProviderStateMixin {
   bool isLogin = true;
-  bool isLoading = false;
   bool obscurePassword = true;
   bool obscureConfirmPassword = true;
 
@@ -98,29 +99,36 @@ class _AuthScreenState extends State<AuthScreen>
     _slideController.forward();
   }
 
-  Future<void> _submitForm() async {
+  void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(isLogin ? 'Login form submitted!' : 'Signup form submitted!'),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
-    setState(() {
-      isLoading = true;
-    });
+  void _signInWithGoogle() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Google Sign-In clicked!'),
+        backgroundColor: Colors.blue,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 2));
-
-    setState(() {
-      isLoading = false;
-    });
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isLogin ? 'Login Successful!' : 'Account Created!'),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
+  void _signInWithFacebook() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Facebook Sign-In clicked!'),
+        backgroundColor: Colors.blue,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
@@ -247,12 +255,6 @@ class _AuthScreenState extends State<AuthScreen>
           icon: Icons.email_outlined,
           keyboardType: TextInputType.emailAddress,
           validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your email';
-            }
-            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-              return 'Please enter a valid email';
-            }
             return null;
           },
         ),
@@ -274,12 +276,6 @@ class _AuthScreenState extends State<AuthScreen>
             },
           ),
           validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your password';
-            }
-            if (value.length < 6) {
-              return 'Password must be at least 6 characters';
-            }
             return null;
           },
         ),
@@ -316,12 +312,6 @@ class _AuthScreenState extends State<AuthScreen>
           label: 'Full Name',
           icon: Icons.person_outline,
           validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your name';
-            }
-            if (value.length < 2) {
-              return 'Name must be at least 2 characters';
-            }
             return null;
           },
         ),
@@ -386,12 +376,6 @@ class _AuthScreenState extends State<AuthScreen>
             },
           ),
           validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please confirm your password';
-            }
-            if (value != _passwordController.text) {
-              return 'Passwords do not match';
-            }
             return null;
           },
         ),
@@ -448,7 +432,7 @@ class _AuthScreenState extends State<AuthScreen>
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: isLoading ? null : _submitForm,
+        onPressed: _submitForm,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF667EEA),
           foregroundColor: Colors.white,
@@ -457,22 +441,13 @@ class _AuthScreenState extends State<AuthScreen>
           ),
           elevation: 2,
         ),
-        child: isLoading
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2,
-                ),
-              )
-            : Text(
-                isLogin ? 'Sign In' : 'Create Account',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+        child: Text(
+          isLogin ? 'Sign In' : 'Create Account',
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
     );
   }
@@ -497,39 +472,73 @@ class _AuthScreenState extends State<AuthScreen>
   }
 
   Widget _buildSocialButtons() {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _buildSocialButton(
-            icon: Icons.g_mobiledata,
-            label: 'Google',
-            color: const Color(0xFFDB4437),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Google login coming soon!'),
-                  behavior: SnackBarBehavior.floating,
+        // Google Sign-In Button
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: OutlinedButton.icon(
+            onPressed: _signInWithGoogle,
+            icon: Container(
+              width: 20,
+              height: 20,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage('https://developers.google.com/identity/images/g-logo.png'),
+                  fit: BoxFit.contain,
                 ),
-              );
-            },
+              ),
+            ),
+            label: const Text(
+              'Sign in with Google',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            style: OutlinedButton.styleFrom(
+              backgroundColor: Colors.white,
+              side: BorderSide(color: Colors.grey[300]!),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 2,
+            ),
           ),
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _buildSocialButton(
-            icon: Icons.facebook,
-            label: 'Facebook',
-            color: const Color(0xFF4267B2),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Facebook login coming soon!'),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
+        const SizedBox(height: 16),
+        
+        // Facebook Login Button
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: ElevatedButton.icon(
+            onPressed: _signInWithFacebook,
+            icon: const Icon(
+              Icons.facebook,
+              color: Colors.white,
+              size: 20,
+            ),
+            label: const Text(
+              'Continue with Facebook',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1877F2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 2,
+            ),
           ),
         ),
+        const SizedBox(height: 16),
       ],
     );
   }
