@@ -5,13 +5,10 @@ A beautiful and modern Flutter login/signup UI design showcase with Material 3 d
 ## Screenshots
 
 ### Login Screen
-![Login Screen](screenshots/login_screen.png)
+![Login Screen](assets/images/login.png)
 
 ### Signup Screen
-![Signup Screen](screenshots/signup_screen.png)
-
-### App Demo
-![App Demo](screenshots/app_demo.gif)
+![Signup Screen](assets/images/signup.png)
 
 ## Features
 
